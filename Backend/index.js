@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var bodyParser = require('body-parser');
 var express = require('express');
 var mongoose = require ('mongoose');
+var assert = require('assert');
 
 //password utils
 var genRandomString = function(length){
@@ -125,6 +126,93 @@ MongoClient.connect(url,{useNewUrlParser:true}, function(err,client){
 
     });
 
+        //Save messages
+        app.post('/saveMessages', (request, response, next)=>{
+          var post_data = request.body;
+    
+          var emisor = post_data.emisor;
+          var receptor = post_data.receptor;
+          var mensaje = post_data.mensaje;
+    
+          var insertJson = {
+            'emisor': emisor,
+            'receptor': receptor,
+            'mensaje': mensaje
+          };
+          var db = client.db('DBchat');
+    
+          //Insert message
+          db.collection('mensajes')
+            .insertOne(insertJson, function(error, res){
+                response.json('Saved message');
+                console.log('Saved message');
+            })
+        });
+    
+          //Save messages
+        app.post('/saveMessages', (request, response, next)=>{
+          var post_data = request.body;
+    
+          var emisor = post_data.emisor;
+          var receptor = post_data.receptor;
+          var mensaje = post_data.mensaje;
+    
+          var insertJson = {
+            'emisor': emisor,
+            'receptor': receptor,
+            'mensaje': mensaje
+          };
+          var db = client.db('DBchat');
+    
+          //Insert message
+          db.collection('mensajes')
+            .insertOne(insertJson, function(error, res){
+                response.json('Saved message');
+                console.log('Saved message');
+            })
+        });
+
+ 
+        //GET messages
+        app.get('/mensajes', (request, response, next)=>{
+          
+           var db = client.db('DBchat');   
+           //Show all messages
+               db.collection('mensajes').find({}).toArray((err,jdocs)=>{
+                 if(err) return next(createError(500))
+                 response.status(200).json(jdocs).end();
+             });
+         }); 
+
+                 //GET messages
+        app.get('/usuarios', (request, response, next)=>{
+          
+           var db = client.db('DBchat');   
+           //Show all users
+               db.collection('user').find({}).toArray((err,jdocs)=>{
+                 if(err) return next(createError(500))
+                 response.status(200).json(jdocs).end();
+             });
+         });  
+         
+         
+         app.get('/userchat/:user', (request, response, next)=>{
+              if(err){
+                  response.Status(403);
+              }else{
+                    var db = client.db('DBchat');
+                    const collection = db.collection('mensajes');
+                    var usersend = [username,part2];
+                    var userreceive = [part2,username];
+                    collection.findOne({$or:[{"emisor": objectId(id)},{"receptor": objectId(id)}]},function(err,doc){
+                        if(err) next(createError(500))
+                        if(doc){
+                            response.status(200).json(doc).end();  
+                        }
+                    });
+              }
+          });       
+ 
     //Start server
     app.listen(3000,()=>{
       console.log('Connected on port 3000');
